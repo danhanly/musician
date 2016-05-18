@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class FavouriteArtistSimple extends Command
+class FavouriteArtistCount extends Command
 {
     /**
      * @var static
@@ -27,7 +27,7 @@ class FavouriteArtistSimple extends Command
      */
     protected function configure()
     {
-        $this->setName('artist:simple')
+        $this->setName('artist:count')
             ->setDescription('Retrieve Favourite Artist by Rating Count')
             ->addArgument('csv', InputArgument::REQUIRED, 'CSV file path');
     }

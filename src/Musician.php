@@ -3,7 +3,7 @@
 namespace DanHanly\Musician;
 
 use DanHanly\Musician\Commands\FavouriteArtistDifferential;
-use DanHanly\Musician\Commands\FavouriteArtistSimple;
+use DanHanly\Musician\Commands\FavouriteArtistCount;
 use DanHanly\Musician\Commands\FavouriteArtistWilson;
 use Symfony\Component\Console\Application;
 
@@ -18,7 +18,7 @@ class Musician
     {
         $application = new Application();
         
-        $application->add(new FavouriteArtistSimple());
+        $application->add(new FavouriteArtistCount());
         $application->add(new FavouriteArtistDifferential());
         $application->add(new FavouriteArtistWilson());
 
