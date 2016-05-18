@@ -1,0 +1,19 @@
+{
+    "name": "danhanly/music",
+    "authors": [
+        {
+            "name": "Dan Hanly",
+            "email": "danhanly@gmail.com"
+        }
+    ],
+    "require": {
+        "symfony/console": "^3.0",
+        "league/csv": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "DanHanly\\Musician\\": "src/",
+            "DanHanly\\Musician\\Libraries\\": "lib/"
+        }
+    }
+}
