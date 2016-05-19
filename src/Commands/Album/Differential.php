@@ -1,6 +1,6 @@
 <?php
 
-namespace DanHanly\Musician\Commands;
+namespace DanHanly\Musician\Commands\Album;
 
 use DanHanly\Musician\Formatters\TopTenFormatter;
 use DanHanly\Musician\Matchers\ArtistNameMatcher;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class FavouriteArtistCount extends Command
+class Differential extends Command
 {
     /**
      * @var static
@@ -22,8 +22,8 @@ class FavouriteArtistCount extends Command
      */
     protected function configure()
     {
-        $this->setName('artist:count')
-            ->setDescription('Retrieve Favourite Artist by Rating Count')
+        $this->setName('album:differential')
+            ->setDescription('Retrieve Favourite Album by Rating Count Differential')
             ->addArgument('csv', InputArgument::REQUIRED, 'CSV file path');
     }
 
@@ -40,27 +40,35 @@ class FavouriteArtistCount extends Command
         $filePath = $input->getArgument('csv');
         $this->csv = Reader::createFromPath($filePath);
 
-        $artists = [];
+        $albums = [];
 
-        $this->csv->each(function ($row) use ($output, &$artists) {
+        $this->csv->each(function ($row) use ($output, &$albums) {
             // Get Rows
             $artist = ArtistNameMatcher::key($row[0]);
+            $album = $row[1];
             $rating = $row[6];
-            // Is the artist already in the array?
-            if (isset($artists[$artist]) === true) {
+
+            $key = $artist . ' - ' . $album;
+            // Is the artist already in the array
+            if (isset($albums[$key]) === true) {
                 if ($rating === 'thumbs-up') {
-                    $artists[$artist] += 1;
+                    $albums[$key] += 1;
+                } elseif ($rating === 'thumbs-down') {
+                    $albums[$key] -= 1;
                 }
             } else {
                 if ($rating === 'thumbs-up') {
-                    $artists[$artist] = 1;
+                    $albums[$key] = 1;
+                } elseif ($rating === 'thumbs-down') {
+                    $albums[$key] = -1;
                 }
             }
             return true;
         });
 
-        arsort($artists);
+        arsort($albums);
 
-        return (new TopTenFormatter)->output($output, $artists);
+        $output->writeln("Your Favourite Albums are... ");
+        return (new TopTenFormatter)->output($output, $albums);
     }
 }

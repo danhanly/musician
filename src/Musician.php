@@ -2,10 +2,8 @@
 
 namespace DanHanly\Musician;
 
-use DanHanly\Musician\Commands\FavouriteArtistDifferential;
-use DanHanly\Musician\Commands\FavouriteArtistCount;
-use DanHanly\Musician\Commands\FavouriteArtistWilson;
-use DanHanly\Musician\Commands\FavouriteArtistWilsonExtended;
+use DanHanly\Musician\Commands\Artist;
+use DanHanly\Musician\Commands\Album;
 use Symfony\Component\Console\Application;
 
 class Musician
@@ -18,11 +16,16 @@ class Musician
     public static function init()
     {
         $application = new Application();
-        
-        $application->add(new FavouriteArtistCount());
-        $application->add(new FavouriteArtistDifferential());
-        $application->add(new FavouriteArtistWilson());
-        $application->add(new FavouriteArtistWilsonExtended());
+
+        $application->add(new Artist\Count());
+        $application->add(new Artist\Differential());
+        $application->add(new Artist\Wilson());
+        $application->add(new Artist\WilsonExtended());
+
+        $application->add(new Album\Count());
+        $application->add(new Album\Differential());
+        $application->add(new Album\Wilson());
+        $application->add(new Album\WilsonExtended());
 
         return $application;
     }

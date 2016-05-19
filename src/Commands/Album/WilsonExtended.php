@@ -1,6 +1,6 @@
 <?php
 
-namespace DanHanly\Musician\Commands;
+namespace DanHanly\Musician\Commands\Album;
 
 use DanHanly\Musician\Formatters\TopTenFormatter;
 use DanHanly\Musician\Libraries\WilsonConfidenceIntervalCalculator;
@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class FavouriteArtistWilsonExtended extends Command
+class WilsonExtended extends Command
 {
     /**
      * @var static
@@ -23,8 +23,8 @@ class FavouriteArtistWilsonExtended extends Command
      */
     protected function configure()
     {
-        $this->setName('artist:wilson-extended')
-            ->setDescription('Retrieve Favourite Artist by Wilson Score, taking into the thumbs-down tracks')
+        $this->setName('album:wilson-extended')
+            ->setDescription('Retrieve Favourite Album by Wilson Score, taking into the thumbs-down tracks')
             ->addArgument('csv', InputArgument::REQUIRED, 'CSV file path');
     }
 
@@ -41,45 +41,49 @@ class FavouriteArtistWilsonExtended extends Command
         $filePath = $input->getArgument('csv');
         $this->csv = Reader::createFromPath($filePath);
 
-        $artists = [];
+        $albums = [];
 
-        $this->csv->each(function ($row) use ($output, &$artists) {
+        $this->csv->each(function ($row) use ($output, &$albums) {
             // Get Rows
             $artist = ArtistNameMatcher::key($row[0]);
+            $album = $row[1];
             $rating = $row[6];
-            // Is the artist already in the array?
-            if (isset($artists[$artist]) === true) {
+
+            $key = $artist . ' - ' . $album;
+            // Is the album already in the array?
+            if (isset($albums[$key]) === true) {
                 if ($rating === 'thumbs-up') {
-                    $artists[$artist]['positive'] += 1;
+                    $albums[$key]['positive'] += 1;
                 } elseif ($rating === 'thumbs-down') {
-                    $artists[$artist]['negative'] += 1;
+                    $albums[$key]['negative'] += 1;
                 }
-                $artists[$artist]['total'] += 1;
+                $albums[$artist]['total'] += 1;
             } else {
                 if ($rating === 'thumbs-up') {
-                    $artists[$artist]['positive'] = 1;
-                    $artists[$artist]['negative'] = 0;
+                    $albums[$key]['positive'] = 1;
+                    $albums[$key]['negative'] = 0;
                 } elseif ($rating === 'thumbs-down') {
-                    $artists[$artist]['positive'] = 0;
-                    $artists[$artist]['negative'] = 1;
+                    $albums[$key]['positive'] = 0;
+                    $albums[$key]['negative'] = 1;
                 } else {
-                    $artists[$artist]['positive'] = 0;
-                    $artists[$artist]['negative'] = 0;
+                    $albums[$key]['positive'] = 0;
+                    $albums[$key]['negative'] = 0;
                 }
-                $artists[$artist]['total'] = 1;
+                $albums[$key]['total'] = 1;
             }
             return true;
         });
 
-        foreach ($artists as $artist => $data) {
+        foreach ($albums as $key => $data) {
             $wilsonUpScore = (new WilsonConfidenceIntervalCalculator)->getScore($data['positive'], $data['total']);
             $wilsonDownScore = (new WilsonConfidenceIntervalCalculator)->getScore($data['negative'], $data['total']);
             $summativeScore = $wilsonUpScore - $wilsonDownScore;
-            $scores[$artist] = round($summativeScore, 3);
+            $scores[$key] = round($summativeScore, 3);
         }
 
         arsort($scores);
 
+        $output->writeln("Your Favourite Albums are... ");
         return (new TopTenFormatter)->output($output, $scores);
     }
 }

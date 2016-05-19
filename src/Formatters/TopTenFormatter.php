@@ -17,8 +17,6 @@ class TopTenFormatter implements Formatter
      */
     public function output(OutputInterface $output, array $data)
     {
-        $output->writeln("Your Favourite Artists are... ");
-
         $keys = array_keys($data);
         $values = array_values($data);
 

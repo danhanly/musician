@@ -1,6 +1,6 @@
 <?php
 
-namespace DanHanly\Musician\Commands;
+namespace DanHanly\Musician\Commands\Artist;
 
 use DanHanly\Musician\Formatters\TopTenFormatter;
 use DanHanly\Musician\Matchers\ArtistNameMatcher;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class FavouriteArtistDifferential extends Command
+class Count extends Command
 {
     /**
      * @var static
@@ -22,8 +22,8 @@ class FavouriteArtistDifferential extends Command
      */
     protected function configure()
     {
-        $this->setName('artist:differential')
-            ->setDescription('Retrieve Favourite Artist by Rating Count Differential')
+        $this->setName('artist:count')
+            ->setDescription('Retrieve Favourite Artist by Rating Count')
             ->addArgument('csv', InputArgument::REQUIRED, 'CSV file path');
     }
 
@@ -46,18 +46,14 @@ class FavouriteArtistDifferential extends Command
             // Get Rows
             $artist = ArtistNameMatcher::key($row[0]);
             $rating = $row[6];
-            // Is the artist already in the array
+            // Is the artist already in the array?
             if (isset($artists[$artist]) === true) {
                 if ($rating === 'thumbs-up') {
                     $artists[$artist] += 1;
-                } elseif ($rating === 'thumbs-down') {
-                    $artists[$artist] -= 1;
                 }
             } else {
                 if ($rating === 'thumbs-up') {
                     $artists[$artist] = 1;
-                } elseif ($rating === 'thumbs-down') {
-                    $artists[$artist] = -1;
                 }
             }
             return true;
@@ -65,6 +61,7 @@ class FavouriteArtistDifferential extends Command
 
         arsort($artists);
 
+        $output->writeln("Your Favourite Artists are... ");
         return (new TopTenFormatter)->output($output, $artists);
     }
 }
