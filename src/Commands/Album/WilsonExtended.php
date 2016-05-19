@@ -57,7 +57,7 @@ class WilsonExtended extends Command
                 } elseif ($rating === 'thumbs-down') {
                     $albums[$key]['negative'] += 1;
                 }
-                $albums[$artist]['total'] += 1;
+                $albums[$key]['total'] += 1;
             } else {
                 if ($rating === 'thumbs-up') {
                     $albums[$key]['positive'] = 1;

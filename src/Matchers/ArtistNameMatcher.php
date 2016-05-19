@@ -10,7 +10,8 @@ class ArtistNameMatcher implements Matcher
     public static $replacers = [
         ' and '        => ' & ',
         ' The '        => ' the ',
-        'マキシマム ザ ホルモン' => 'Maximum the Hormone'
+        'マキシマム ザ ホルモン' => 'Maximum the Hormone',
+        'Braves'       => 'BRÅVES',
     ];
 
     public static $clippers = [
