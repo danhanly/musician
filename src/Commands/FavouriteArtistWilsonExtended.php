@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class FavouriteArtistWilson extends Command
+class FavouriteArtistWilsonExtended extends Command
 {
     /**
      * @var static
@@ -23,8 +23,8 @@ class FavouriteArtistWilson extends Command
      */
     protected function configure()
     {
-        $this->setName('artist:wilson')
-            ->setDescription('Retrieve Favourite Artist by Lower Bound Wilson Confidence Interval')
+        $this->setName('artist:wilson-extended')
+            ->setDescription('Retrieve Favourite Artist by Wilson Score, taking into the thumbs-down tracks')
             ->addArgument('csv', InputArgument::REQUIRED, 'CSV file path');
     }
 
@@ -51,24 +51,31 @@ class FavouriteArtistWilson extends Command
             if (isset($artists[$artist]) === true) {
                 if ($rating === 'thumbs-up') {
                     $artists[$artist]['positive'] += 1;
+                } elseif ($rating === 'thumbs-down') {
+                    $artists[$artist]['negative'] += 1;
                 }
                 $artists[$artist]['total'] += 1;
             } else {
                 if ($rating === 'thumbs-up') {
                     $artists[$artist]['positive'] = 1;
+                    $artists[$artist]['negative'] = 0;
+                } elseif ($rating === 'thumbs-down') {
+                    $artists[$artist]['positive'] = 0;
+                    $artists[$artist]['negative'] = 1;
                 } else {
                     $artists[$artist]['positive'] = 0;
+                    $artists[$artist]['negative'] = 0;
                 }
                 $artists[$artist]['total'] = 1;
             }
             return true;
         });
 
-        $scores = [];
-
         foreach ($artists as $artist => $data) {
-            $wilsonScore = (new WilsonConfidenceIntervalCalculator)->getScore($data['positive'], $data['total']);
-            $scores[$artist] = round($wilsonScore, 3);
+            $wilsonUpScore = (new WilsonConfidenceIntervalCalculator)->getScore($data['positive'], $data['total']);
+            $wilsonDownScore = (new WilsonConfidenceIntervalCalculator)->getScore($data['negative'], $data['total']);
+            $summativeScore = $wilsonUpScore - $wilsonDownScore;
+            $scores[$artist] = round($summativeScore, 3);
         }
 
         arsort($scores);

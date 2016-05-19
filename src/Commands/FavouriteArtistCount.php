@@ -18,11 +18,6 @@ class FavouriteArtistCount extends Command
     protected $csv;
 
     /**
-     * @var int
-     */
-    protected $resultCount = 10;
-
-    /**
      * Configure the command.
      */
     protected function configure()
